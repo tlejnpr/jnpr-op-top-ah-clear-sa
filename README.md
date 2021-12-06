@@ -124,8 +124,8 @@ This script is written in Python 3 language dialect.
 - Dry run with Info logging level (2)
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-esp-clear-sa
-    Looking for 10000+ esp sessions and 50+ peer sessions, top 3 are shown, logging level 2
+    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are shown, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
     Number of sessions in flow table: 21167
@@ -159,8 +159,8 @@ This script is written in Python 3 language dialect.
 - Executed on device with one matching peer IP, clearing that peer
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-esp-clear-sa
-    Looking for 10000+ esp sessions and 50+ peer sessions, top 3 are cleared, logging level 2
+    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are cleared, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
     Number of sessions in flow table: 21118
@@ -194,8 +194,8 @@ This script is written in Python 3 language dialect.
 - Executed on a device with no matching peer IPs (not enough individual session), so no op statements generated
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-esp-clear-sa
-    Looking for 10000+ esp sessions and 50+ peer sessions, top 3 are cleared, logging level 2
+    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are cleared, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
     Number of sessions in flow table: 21043
