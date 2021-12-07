@@ -23,6 +23,8 @@ This script is written in Python 3 language dialect.
 from jnpr.junos import Device
 from collections import defaultdict
 from time import sleep
+from jcs import syslog
+from os import getpid
 import logging, sys
 
 # minimum_total_sessions_open (integer)
@@ -66,6 +68,10 @@ dry_run = True
 debug_level = 2
 
 
+def to_syslog(message):
+    syslog("external.info", "top-esp-clear-sa[{}]: "
+           .format(getpid()), message)
+
 def bounce_top_talkers(dev):
     """
     Do what I mean
@@ -89,6 +95,8 @@ def bounce_top_talkers(dev):
                 minimum_peer_sessions_open, top_x_talkers,
                 "shown (DRY RUN)" if dry_run else "cleared", debug_level))
 
+    to_syslog("starting flow session table scan.")
+
     logger.debug("Start collecting flow sessions (this may take a minute)...")
 
     srcip = defaultdict(int)
@@ -98,7 +106,7 @@ def bounce_top_talkers(dev):
     """
     Phase 1: collect flow session statistics and select top talkers
     """
-    
+
     # cli("show security flow session protocol ah", format="xml", warning=True)
     flowsessions = dev.rpc.get_flow_session_information(protocol="ah",
         dev_timeout=360)
@@ -148,7 +156,7 @@ def bounce_top_talkers(dev):
     for peer in top_peers:
         salist[peer] = satemp[peer].keys()
     del satemp
-        
+
     logger.log(5, "All needed SA indices:" + str(salist))
     for peer in top_peers:
         logger.info("Indexes for IP {}: {}".format(peer, " ".join(salist[peer])))
@@ -156,6 +164,10 @@ def bounce_top_talkers(dev):
     """
     Phase 3: show clear ike/ipsec statements for on-device execution
     """
+
+    to_syslog("{} {} peers to clear - {}".format(
+              ("dry_run: found" if dry_run else "selected"),
+              len(top_peers), " ".join(top_peers)))
 
     if dry_run:
         logger.info("Dry run, not executing any operational commands.")
@@ -174,9 +186,10 @@ def bounce_top_talkers(dev):
             if not dry_run and not dev.rpc.clear_ipsec_security_association({"index": index}):
                 logger.error("RPC call for '" + cmd + "' failed, continuing anyway")
 
+    to_syslog("all done, exiting.")
     logger.info("All done.")
     return True
-    
+
 if __name__ == "__main__":
     with Device() as dev:
         bounce_top_talkers(dev)
