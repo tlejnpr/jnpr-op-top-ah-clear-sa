@@ -69,7 +69,7 @@ debug_level = 2
 
 
 def to_syslog(message):
-    syslog("external.info", "top-esp-clear-sa[{}]: "
+    syslog("external.info", "top-ah-clear-sa[{}]: "
            .format(getpid()), message)
 
 def bounce_top_talkers(dev):
@@ -171,23 +171,33 @@ def bounce_top_talkers(dev):
 
     if dry_run:
         logger.info("Dry run, not executing any operational commands.")
-    else:
-        logger.info("Clearing ike sa and ipsec sa indices for top {} talking peers...".format(len(top_peers)))
-    logger.debug("Statements {}:".format("sent" if not dry_run else "to be executed (dry run)"))
-    for peer in top_peers:
-        cmd = "clear security ike security-associations {}".format(peer)
-        logger.debug("  " + cmd)
-        if not dry_run and not dev.rpc.clear_ike_security_association({"peer-address": peer}):
-            logger.error("RPC call for '" + cmd + "' failed, continuing anyway")
-        sleep(0.5)
-        for index in salist[peer]:
-            cmd = "clear security ipsec security-associations index {}".format(index)
-            logger.debug("  " + cmd)
-            if not dry_run and not dev.rpc.clear_ipsec_security_association({"index": index}):
-                logger.error("RPC call for '" + cmd + "' failed, continuing anyway")
 
-    to_syslog("all done, exiting.")
-    logger.info("All done.")
+    if len(top_peers):
+        logger.info("Clearing ike sa and ipsec sa indices for top {} talking peers...".format(len(top_peers)))
+        logger.debug("Statements {}:".format("sent" if not dry_run else "to be executed (dry run)"))
+        for peer in top_peers:
+            cmd = "clear security ike security-associations {}".format(peer)
+            logger.debug("  " + cmd)
+            if not dry_run and not dev.rpc.clear_ike_security_association({"peer-address": peer}):
+                errstring = "RPC call for '{}' failed, continuing anyway".format(cmd)
+                to_syslog(errstring)
+                logger.error(errstring)
+            sleep(0.5)
+            for index in salist[peer]:
+                cmd = "clear security ipsec security-associations index {}".format(index)
+                logger.debug("  " + cmd)
+                if not dry_run and not dev.rpc.clear_ipsec_security_association({"index": index}):
+                    errstring = "RPC call for '{}' failed, continuing anyway".format(cmd)
+                    to_syslog(errstring)
+                    logger.error(errstring)
+
+        to_syslog("all done, exiting." if dry_run else
+                  "cleared ike sa and ipsec sa for peers: {}"
+                  .format(" ".join(top_peers)))
+        logger.info("All done.")
+    else:
+        logger.info("No peers selected, exinting.")
+
     return True
 
 if __name__ == "__main__":

@@ -124,7 +124,7 @@ This script is written in Python 3 language dialect.
 - Dry run with Info logging level (2)
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    lab@srx1500-r2603> op top-ah-clear-sa
     Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are shown, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
@@ -159,7 +159,7 @@ This script is written in Python 3 language dialect.
 - Executed on device with one matching peer IP, clearing that peer
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    lab@srx1500-r2603> op top-ah-clear-sa
     Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are cleared, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
@@ -194,7 +194,7 @@ This script is written in Python 3 language dialect.
 - Executed on a device with no matching peer IPs (not enough individual session), so no op statements generated
 
     ~~~
-    labroot@jtac-srx1500-r2603> op top-ah-clear-sa
+    lab@srx1500-r2603> op top-ah-clear-sa
     Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are cleared, logging level 2
     Start collecting flow sessions (this may take a minute)...
     Finished collecting flow sessions.
@@ -206,3 +206,66 @@ This script is written in Python 3 language dialect.
     All done.
     ~~~
 
+- Executed on device with one matching peer IP, clearing that peer
+
+    ~~~
+    lab@srx1500-r2603> op top-ah-clear-sa
+    Looking for 10000+ ah sessions and 50+ peer sessions, top 3 are cleared, logging level 2
+    Start collecting flow sessions (this may take a minute)...
+    Finished collecting flow sessions.
+    Number of sessions in flow table: 25950
+    Top talkers: ['2.0.0.146', '2.0.0.150', '1.0.0.42']
+    Found 750 unique peers, with 385 peers having 40 or more sessions open. Top 3 peers are:
+      2.0.0.146 (62 sessions)
+      2.0.0.150 (62 sessions)
+      1.0.0.42 (58 sessions)
+    Indexes for IP 2.0.0.146: 67109704 67109705 67109706 67109707 67109708
+    Indexes for IP 2.0.0.150: 67109724 67109725 67109726 67109727 67109728
+    Indexes for IP 1.0.0.42: 67109684 67109685 67109686 67109687
+    Clearing ike sa and ipsec sa indices for top 3 talking peers...
+    Statements sent:
+      clear security ike security-associations 2.0.0.146
+      clear security ipsec security-associations index 67109704
+      clear security ipsec security-associations index 67109705
+      clear security ipsec security-associations index 67109706
+      clear security ipsec security-associations index 67109707
+      clear security ipsec security-associations index 67109708
+      clear security ike security-associations 2.0.0.150
+      clear security ipsec security-associations index 67109724
+      clear security ipsec security-associations index 67109725
+      clear security ipsec security-associations index 67109726
+      clear security ipsec security-associations index 67109727
+      clear security ipsec security-associations index 67109728
+      clear security ike security-associations 1.0.0.42
+      clear security ipsec security-associations index 67109684
+      clear security ipsec security-associations index 67109685
+      clear security ipsec security-associations index 67109686
+      clear security ipsec security-associations index 67109687
+    All done.
+    ~~~
+
+### Syslog output examples
+
+- Syslog with flag dry_run set
+
+    ~~~
+    Nov 23 21:03:53  srx1500-r2603 cscript: top-ah-clear-sa[22240]: starting flow session table scan.
+    Nov 23 21:04:58  srx1500-r2603 cscript: top-ah-clear-sa[22240]: dry_run: found 3 peers to clear - 3.0.0.158 2.0.0.146 2.0.0.150
+    Nov 23 21:05:00  srx1500-r2603 cscript: top-ah-clear-sa[22240]: all done, exiting.
+    ~~~
+    ~~~
+    Nov 23 21:14:02  srx1500-r2603 cscript: top-ah-clear-sa[22762]: starting flow session table scan.
+    Nov 23 21:15:09  srx1500-r2603 cscript: top-ah-clear-sa[22762]: dry_run: found 0 peers to clear -
+    ~~~
+
+- Syslog with clearing sessions on device
+
+    ~~~
+    Nov 23 21:15:54  srx1500-r2603 cscript: top-ah-clear-sa[22850]: starting flow session table scan.
+    Nov 23 21:17:02  srx1500-r2603 cscript: top-ah-clear-sa[22850]: selected 0 peers to clear -
+    ~~~
+    ~~~
+    Nov 23 23:05:09  srx1500-r2603 cscript: top-ah-clear-sa[27240]: starting flow session table scan.
+    Nov 23 23:06:14  srx1500-r2603 cscript: top-ah-clear-sa[27240]: selected 3 peers to clear - 2.0.0.146 2.0.0.150 1.0.0.42
+    Nov 23 23:06:19  srx1500-r2603 cscript: top-ah-clear-sa[27240]: cleared ike sa and ipsec sa for peers: 2.0.0.146 2.0.0.150 1.0.0.42
+    ~~~
