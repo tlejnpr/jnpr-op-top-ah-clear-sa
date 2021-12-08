@@ -80,21 +80,27 @@ This script is written in Python 3 language dialect.
 
 ### Configurable Parameters
 
-- minimum_total_sessions_open (integer)
+These parameters can be adjusted either in the script itself, given as arguments to the op script invocation, or by setting them in event script invocation configuration (set event-options policy evAhSessions then event-script jnpr-op-top-ah-clear-sa.py arguments ...).
+
+- "min-total-sessions" (integer)
 
     how many sessions to find at minimum in session table
     recommended: 10000 sessions listed overall
 
     > minimum_total_sessions_open = 10000
 
-- minimum_peer_sessions_open (integer)
+    must be greater than 5000 if used as command line argument
+
+- "min-peer-sessions" (integer)
 
     how many sessions to find at minimum for any given peer
     recommended: 1000 sessions listed for peer
 
     > minimum_peer_sessions_open = 1000
 
-- top_x_talkers (integer)
+    must be greater than 50 if used as command line argument
+
+- "number-of-peers-to-clear" (integer)
 
     how many peer IP addresses to reset, if there are many;
     determined by number of reported sessions for that peer
@@ -102,14 +108,16 @@ This script is written in Python 3 language dialect.
 
     > top_x_talkers = 3
 
-- dry_run (boolean)
+- "dry-run" (boolean) (on command line: 0 | 1)
 
     just show commands in dry run, or execute them actually
     suggested: True, dry run
 
     > dry_run = True
 
-- debug_level ( 0 | 1 | 2 )
+    to actually execute commands, "dry-run 0" must be provided
+
+- "debug_level" ( 0 | 1 | 2 | 3)
 
     print state on stderr
         0: no output (production trust mode)
@@ -117,7 +125,9 @@ This script is written in Python 3 language dialect.
         2: verbose
         3: debug (tons of output)
 
-    > debug_level = 1
+    > debug_level = 2
+
+    default level of output is verbose (2)
 
 ### Sample output
 

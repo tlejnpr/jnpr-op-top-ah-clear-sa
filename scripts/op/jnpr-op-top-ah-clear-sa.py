@@ -26,6 +26,7 @@ from time import sleep
 from jcs import syslog
 from os import getpid
 import logging, sys
+import argparse
 
 # minimum_total_sessions_open (integer)
 #
@@ -67,6 +68,13 @@ dry_run = True
 #
 debug_level = 2
 
+arguments = {
+  'min-total-sessions': 'Minimum total flow sessions open to start activities (5000..unl)',
+  'min-peer-sessions':  'Minimum peer active sessions to consider that peer for processing (50..unl)',
+  'number-of-peers-to-clear': 'Maximum number of matching peers to clear (1..unl)',
+  'dry-run': 'Execute or just show commands (0..1), default is 1, do dry-run',
+  'debug-level': 'Show activities level (0..3), default is 2, verbose output'
+}
 
 def to_syslog(message):
     syslog("external.info", "top-ah-clear-sa[{}]: "
@@ -201,5 +209,24 @@ def bounce_top_talkers(dev):
     return True
 
 if __name__ == "__main__":
+    older_version = sys.version_info <= (3, 7, 9)
+    parser = argparse.ArgumentParser()
+    for key in arguments:
+        prefix = '-' if older_version or len(key) == 1 else '--'
+        parser.add_argument((prefix + key), required=False, help=arguments[key])
+    args = parser.parse_args()
+    print(args)
+    if args.min_total_sessions is not None and int(args.min_total_sessions) >= 5000:
+        minimum_total_sessions_open = args.min_total_sessions
+    if args.min_peer_sessions is not None and args.min_peer_sessions >= 50:
+        minimum_peer_sessions_open = args.min_peer_sessions
+    if args.number_of_peers_to_clear is not None and args.number_of_peers_to_clear >= 1:
+        top_x_talkers = args.number_of_peers_to_clear
+    if args.dry_run is not None and ( args.dry_run.lower() == 'no' or int(args.dry_run) == 0 ):
+        dry_run = False
+    else:
+        dry_run = True
+    if args.debug_level is not None and args.debug_level >= 0 and args.debug_level <= 3:
+        debug_level = args.debug_level
     with Device() as dev:
         bounce_top_talkers(dev)
